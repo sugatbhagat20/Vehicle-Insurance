@@ -1,0 +1,42 @@
+package com.backend.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class VehicleService {
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    private final String USER_SERVICE_BASE_URL = "http://localhost:8080/api/users"; // adjust if using gateway or service registry
+
+    public Vehicle addVehicle(Vehicle vehicle, Long userId) {
+        // Step 1: Verify user exists in User Service
+        String userUrl = USER_SERVICE_BASE_URL + "/" + userId;
+
+        ResponseEntity<UserDTO> userResponse = restTemplate.getForEntity(userUrl, UserDTO.class);
+
+        if (!userResponse.getStatusCode().is2xxSuccessful() || userResponse.getBody() == null) {
+            throw new RuntimeException("User not found with ID: " + userId);
+        }
+
+        // Step 2: Set the user ID and save vehicle
+        vehicle.setUserId(userId);
+        return vehicleRepository.save(vehicle);
+    }
+
+    public List<Vehicle> getAllVehicles() {
+        return vehicleRepository.findAll();
+    }
+
+    public Optional<Vehicle> getVehicleById(Long id) {
+        return vehicleRepository.findById(id);
+    }
+
+    public void deleteVehicleById(Long id) {
+        vehicleRepository.deleteById(id);
+    }
+}

@@ -1,0 +1,19 @@
+package com.backend.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.backend.entity.User;
+import com.backend.repo.UserRepository;
+
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public User register(User user) {
+        // Directly saving raw password (not encrypted)
+        return userRepository.save(user);
+    }
+}
